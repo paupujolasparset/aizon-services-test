@@ -1,0 +1,13 @@
+{
+  "ServiceURL": "https://3wk7541ps6.execute-api.eu-central-1.amazonaws.com/dev",
+
+  "cognito": {
+    "REGION": "eu-central-1",
+    "USER_POOL_ID": "eu-central-1_9PKEOHcBh",
+    "USER_POOL_CLIENT_ID": "7qavkd639b2plf95so80572k40"
+  },
+
+  "DynamoDb": {
+    "TABLE_NAME": "aizon-services-dev"
+  }
+}
