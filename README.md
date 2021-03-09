@@ -40,6 +40,8 @@ For the authentication part I use Cognito, there is one endpoint to register a u
 
 To deploy the cloudformation just run `sls deploy` in the terminal, this will create the `Coognito user pool and application client`, the `lambda functions`, the `Dynamodb table` and the `api gateway`, also will tell the services endpoint to authenticate using cognito.
 
+After this you can run `serverless export-env` to export all the resolved environment variables to an .env file. This resolves ssm parameters correctly and made integration testing much simpler for us.
+
 ## TODO
 There are some things that remain pending and could be improved. Some have consumed me a few hours and I have been able to solve them and others I cannot find a way to do it. For example, the environment variables of the Cognito UserPools, when I run the serverless offline, they take the value <em>undefined</em>.
 

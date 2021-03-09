@@ -3,6 +3,7 @@ frameworkVersion: '2'
 
 plugins:
   - serverless-offline
+  - serverless-export-env
 
 custom:
     UserPoolArn: arn:aws:cognito-idp:eu-central-1:342487230825:userpool/eu-central-1_9PKEOHcBh
@@ -20,6 +21,15 @@ provider:
       Ref: UserPool
     USER_POOL_CLIENT_ID: 
       Ref: UserPoolClient
+    API_URL:
+      !Join
+        - ''
+        - - 'https://'
+          - !Ref ApiGatewayRestApi
+          - '.execute-api.'
+          - ${opt:region, self:provider.region}
+          - '.amazonaws.com/'
+          - ${opt:stage, self:provider.stage}
  
   iamRoleStatements:
     - Effect: Allow

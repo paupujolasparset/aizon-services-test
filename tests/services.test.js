@@ -1,7 +1,7 @@
 const actions = require('../api/services/functions/actions');
 const users = require('../api/auth/user-actions');
 const axios = require('axios');
-const config = require('../aws-config.json');
+require('dotenv').config();
 
 /**
  * SIMULATE THE END TO END PROCESS OF CREATING SOME SERVICES, SCREENS
@@ -28,7 +28,7 @@ describe('Test Screen life cycle', () => {
     };
     let response1 = await axios({
       method: 'post',
-      url: config.ServiceURL + `/service?serviceType=${solution1.serviceType}`,
+      url: process.env.API_URL + `/service?serviceType=${solution1.serviceType}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
       },
@@ -42,7 +42,7 @@ describe('Test Screen life cycle', () => {
     const readedSolution1 = await axios({
       method: 'get',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/service/${solution1.SK}/?serviceType=${solution1.serviceType}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -66,7 +66,7 @@ describe('Test Screen life cycle', () => {
     let response2 = await axios({
       method: 'post',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/service?serviceType=${screen1.serviceType}&parentId=${solution1.SK}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -86,7 +86,7 @@ describe('Test Screen life cycle', () => {
     let response3 = await axios({
       method: 'post',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/service?serviceType=${widget1.serviceType}&parentId=${screen1.SK}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -106,7 +106,7 @@ describe('Test Screen life cycle', () => {
     let response4 = await axios({
       method: 'post',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/service?serviceType=${screen2.serviceType}&parentId=${solution1.SK}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -121,7 +121,7 @@ describe('Test Screen life cycle', () => {
     const readedScreens = await axios({
       method: 'get',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/services?serviceType=screen&parentId=${solution1.SK}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -139,7 +139,7 @@ describe('Test Screen life cycle', () => {
     await axios({
       method: 'delete',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/service/${solution1.SK}?serviceType=${solution1.serviceType}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -150,7 +150,7 @@ describe('Test Screen life cycle', () => {
     const readedDeletedSolution = await axios({
       method: 'get',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/services?serviceType=${solution1.serviceType}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -162,7 +162,7 @@ describe('Test Screen life cycle', () => {
     const readedDeletedScreen1= await axios({
       method: 'get',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/services?serviceType=${screen1.serviceType}&parentId=${solution1.SK}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -174,7 +174,7 @@ describe('Test Screen life cycle', () => {
     const readedDeletedWidget1 = await axios({
       method: 'get',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/services?serviceType=${widget1.serviceType}&parentId=${screen1.SK}`,
       headers: {
         Authorization: 'Bearer ' + validToken,
@@ -186,7 +186,7 @@ describe('Test Screen life cycle', () => {
     const readedDeletedScreen2 = await axios({
       method: 'get',
       url:
-        config.ServiceURL +
+        process.env.API_URL +
         `/services?serviceType=${screen2.serviceType}&parentId=${solution1.SK}`,
       headers: {
         Authorization: 'Bearer ' + validToken,

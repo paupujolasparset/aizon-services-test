@@ -1,4 +1,5 @@
 const users = require('../api/auth/user-actions');
+require('dotenv').config();
 
 describe('Test cognito authentication', () => {
   const existingUser = {
