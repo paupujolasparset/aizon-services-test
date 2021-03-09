@@ -8,9 +8,7 @@ exports.handler = async (event) => {
     },
   };
 
-  let username = undefined;
-  let type = undefined;
-  let id = undefined;
+  let username, serviceType, id;
 
   // Get the username
   if (
@@ -35,14 +33,14 @@ exports.handler = async (event) => {
 
   // Get the type (solution, screen or widget)
   if (event.queryStringParameters && event.queryStringParameters.serviceType) {
-    type = event.queryStringParameters.serviceType;
+    serviceType = event.queryStringParameters.serviceType;
   } else {
     response.statusCode = 400;
-    response.body = 'Missing service type parameter';
+    response.body = 'Missing serviceType parameter';
     return response;
   }
 
-  let res = await actions.delete({ username, type, id });
+  const res = await actions.delete({ username, serviceType, id });
 
   response.body = res.body;
   response.statusCode = res.statusCode;

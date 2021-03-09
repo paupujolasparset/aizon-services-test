@@ -7,7 +7,7 @@ exports.handler = async (event) => {
 			'Content-Type': 'application/json',
 		},
 	};
-	let body = JSON.parse(event.body);
+	const body = JSON.parse(event.body);
 
   if (body && body.username && body.password) {
 		try {

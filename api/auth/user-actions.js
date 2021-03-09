@@ -5,16 +5,14 @@
  */
 global.fetch = require('node-fetch');
 const Amplify = require('aws-amplify');
-const config = require('../../aws-config.json');
-
 
 // Configuring amplify authentication
 Amplify.default.configure({
   Auth: {
     mandatorySignId: true,
-    region: process.env.AWS_REGION || config.cognito.REGION,
-    userPoolId: process.env.USER_POOL_ID || config.cognito.USER_POOL_ID,
-    userPoolWebClientId: process.env.USER_POOL_CLIENT_ID || config.cognito.USER_POOL_CLIENT_ID,
+    region: process.env.AWS_REGION,
+    userPoolId: 'eu-central-1_9PKEOHcBh',
+    userPoolWebClientId: '7qavkd639b2plf95so80572k40',
     authenticationFlowType: 'USER_PASSWORD_AUTH',
   },
 });
@@ -25,6 +23,7 @@ exports.signUp = async (username, password) => {
       username,
       password,
     });
+    return;
   } catch (err) {
     throw err;
   }

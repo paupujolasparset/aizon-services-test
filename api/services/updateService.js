@@ -8,11 +8,7 @@ exports.handler = async (event) => {
     },
   };
 
-  let username = undefined;
-  let type = undefined;
-  let id = undefined;
-  let body = undefined;
-
+  let username, serviceType, id, body;
   // Get the username
   if (event.headers && event.headers['username']) {
     username = event.headers.username;
@@ -47,7 +43,7 @@ exports.handler = async (event) => {
     body = JSON.parse(event.body);
   }
 
-  let res = await actions.list({ username, type, id, body });
+  const res = await actions.list({ username, serviceType, id, body });
   response.body = res.body;
   response.statusCode = res.statusCode;
 

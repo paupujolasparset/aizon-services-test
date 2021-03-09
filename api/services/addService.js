@@ -8,7 +8,7 @@ exports.handler = async (event) => {
     },
   };
 
-  let username, type, parentId, body;
+  let username, serviceType, parentId, body;
 
   if (
     event.requestContext.authorizer &&
@@ -26,10 +26,10 @@ exports.handler = async (event) => {
   }
 
   if (event.queryStringParameters && event.queryStringParameters.serviceType) {
-    type = event.queryStringParameters.serviceType;
+    serviceType = event.queryStringParameters.serviceType;
   } else {
     response.statusCode = 400;
-    response.body = 'Missing service type parameter';
+    response.body = 'Missing serviceType parameter';
     return response;
   }
 
@@ -37,7 +37,7 @@ exports.handler = async (event) => {
     body = JSON.parse(event.body);
   }
 
-  let res = await actions.add({ username, type, parentId, body });
+  const res = await actions.add({ username, serviceType, parentId, body });
   response.body = res.body;
   response.statusCode = res.statusCode;
   return response;

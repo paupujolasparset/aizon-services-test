@@ -8,9 +8,7 @@ exports.handler = async (event) => {
     },
   };
 
-  let username = undefined;
-  let type = undefined;
-  let parentId = undefined;
+  let username, serviceType, parentId;
 
   // Get the username
   if (
@@ -31,14 +29,14 @@ exports.handler = async (event) => {
 
   // Get the type (solution, screen or widget)
   if (event.queryStringParameters && event.queryStringParameters.serviceType) {
-    type = event.queryStringParameters.serviceType;
+    serviceType = event.queryStringParameters.serviceType;
   } else {
     response.statusCode = 400;
     response.body = 'Missing service type parameter';
     return response;
   }
 
-  let res = await actions.list({ username, type, parentId });
+  const res = await actions.list({ username, serviceType, parentId });
   response.body = res.body;
   response.statusCode = res.statusCode;
 

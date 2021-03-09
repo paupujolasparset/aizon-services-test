@@ -2,17 +2,18 @@ const users = require('../api/auth/user-actions');
 const config = require('../aws-config.json');
 const axios = require('axios');
 
-describe('Test cognito axios call', () => {
+describe('Test axios call after authenticate', () => {
   
   test('Get services list of authenticated user', async () => {
-		let validToken = await users.signIn('bypet7@gmail.com', '1234Abcd$');
+    const validToken = await users.signIn('bypet7@gmail.com', '1234Abcd$');
 		const response = await axios.get(`${config.ServiceURL}/services`, {
-			headers: {
-				"Authorization" : 'Bearer ' + validToken
-			}, params: {
-				serviceType: 'solution'
-			}
-		});
+      headers: {
+        Authorization: 'Bearer ' + validToken,
+      },
+      params: {
+        serviceType: 'solution',
+      },
+    });
     
 		expect(response.data).toMatchObject({
       Items: expect.any(Array),

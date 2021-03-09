@@ -4,6 +4,8 @@ frameworkVersion: '2'
 plugins:
   - serverless-offline
 
+custom:
+    UserPoolArn: arn:aws:cognito-idp:eu-central-1:342487230825:userpool/eu-central-1_9PKEOHcBh
 
 provider:
   name: aws
@@ -46,8 +48,17 @@ functions:
           cors: true
           integration: lambda-proxy
           authorizer: 
-            type: COGNITO_USER_POOLS
-            authorizerId: { Ref: MyApiGatewayAuthorizer }
+            name: authorizer
+            arn: 
+              ${self:custom.UserPoolArn}
+              # - Fn::Join:
+              #   - ''
+              #   - - 'arn:aws:cognito-idp:'
+              #     - ${self:provider.region}
+              #     - ':'
+              #     - Ref: AWS::AccountId
+              #     - ':userpool/'
+              #     - Ref: UserPool
   
   listServices:
     handler: api/services/listServices.handler
@@ -60,10 +71,10 @@ functions:
           cors: true
           integration: lambda-proxy
           authorizer: 
-            # type: COGNITO_USER_POOLS
-            # authorizerId: { Ref: MyApiGatewayAuthorizer }
             name: authorizer
-            arn: arn:aws:cognito-idp:eu-central-1:342487230825:userpool/eu-central-1_9PKEOHcBh
+            arn: 
+              ${self:custom.UserPoolArn}
+
 
   getService:
     handler: api/services/getService.handler
@@ -76,8 +87,9 @@ functions:
           cors: true
           integration: lambda-proxy
           authorizer: 
-            type: COGNITO_USER_POOLS
-            authorizerId: { Ref: MyApiGatewayAuthorizer }
+            name: authorizer
+            arn: 
+              ${self:custom.UserPoolArn}
 
   deleteService:
     handler: api/services/deleteService.handler
@@ -90,8 +102,9 @@ functions:
           cors: true
           integration: lambda-proxy
           authorizer: 
-            type: COGNITO_USER_POOLS
-            authorizerId: { Ref: MyApiGatewayAuthorizer }
+            name: authorizer
+            arn: 
+              ${self:custom.UserPoolArn}
 
   updateService:
     handler: api/services/updateService.handler
@@ -104,8 +117,9 @@ functions:
           cors: true
           integration: lambda-proxy
           authorizer: 
-            type: COGNITO_USER_POOLS
-            authorizerId: { Ref: MyApiGatewayAuthorizer }
+            name: authorizer
+            arn: 
+              ${self:custom.UserPoolArn}
 
   loginUser:
     handler: api/auth/loginUser.handler
@@ -141,17 +155,6 @@ functions:
 
 resources:
   Resources:
-    MyApiGatewayAuthorizer: 
-      Type: AWS::ApiGateway::Authorizer
-      Properties: 
-        AuthorizerResultTtlInSeconds: 5
-        IdentitySource: method.request.header.Authorization
-        Name: MyCognitoAuthorizer
-        RestApiId: 
-          Ref: ApiGatewayRestApi
-        Type: COGNITO_USER_POOLS
-        ProviderARNs: 
-          - {"Fn::Join": ["", ["arn:aws:cognito-idp:", {Ref: "AWS::Region"}, ":", {Ref: "AWS::AccountId"}, ":userpool/", Ref: UserPool]]}
     # =====================================================
     # DynamoDB table
     # =====================================================
@@ -216,16 +219,3 @@ resources:
         Domain: aizon-services # what is before .auth.REGION.amazoncognito.com
         UserPoolId:
           Ref: UserPool
-
-  Outputs:
-    UserPoolId:
-      Value:
-        Ref: UserPool
-      Export:
-        Name: ${self:service}-${opt:stage, self:provider.stage}-UserPoolId
-
-    UserPoolClientId:
-      Value:
-        Ref: UserPoolClient
-      Export:
-        Name: ${self:service}-${opt:stage, self:provider.stage}-UserPoolClientId

@@ -1,6 +1,5 @@
 const uuid = require('uuid');
 const AWS = require('aws-sdk');
-const config = require('../../../aws-config.json');
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -9,19 +8,18 @@ const generateSK = (parentId) => {
 	return parentId ? `${parentId}_${uuid.v1()}` : `_${uuid.v1()}`;
 };
 
-let tableName = process.env.SERVICES_TABLE || config.DynamoDb.TABLE_NAME;
+const tableName = process.env.SERVICES_TABLE;
 
-
-exports.add = async({ username, type, parentId, body}) => {
+exports.add = async({ username, serviceType, parentId, body}) => {
 	// Add into the table
-	let sk = generateSK(parentId);
-	let item = {
-		PK: type,
-		SK: sk,
-		username,
-		info: body,
-	};
-	let params = {
+	const sk = generateSK(parentId);
+	const item = {
+    PK: username,
+    SK: sk,
+    serviceType,
+    info: body,
+  };
+	const params = {
 		TableName: tableName,
 		Item: item,
 	};
@@ -35,36 +33,34 @@ exports.add = async({ username, type, parentId, body}) => {
 		}
 	} catch (err) {
 		return {
-			body: `Could not add ${type}: ${err}`,
-			statusCode : 409
-		}
+      body: `Could not add ${serviceType}: ${err}`,
+      statusCode: 409,
+    };
 	}
 };
 
-exports.delete = async({ username, type, id}) => {
+exports.delete = async ({ username, serviceType, id }) => {
   // Build the query to find all the services to delete
-  let params = {
+  const params = {
     TableName: tableName,
     ProjectionExpression: 'PK, SK',
-    KeyConditionExpression: 'PK = :pk AND SK = :sk',
-    FilterExpression: `username = :username`,
+    KeyConditionExpression: 'PK = :pk AND begins_with ( SK , :sk )',
     ExpressionAttributeValues: {
-      ':pk': type,
+      ':pk': username,
       ':sk': id,
-      ':username': username,
     },
   };
 
   // Try to get the service from the table
   try {
-    let itemsToDelete = await docClient.query(params).promise();
+    const itemsToDelete = await docClient.query(params).promise();
     if (itemsToDelete.Items.length === 0) {
-			return {
-				body: `Could not find ${type} with id: ${id}`,
-				statusCode : 409
-			}
+      return {
+        body: `Could not find ${serviceType} with id: ${id}`,
+        statusCode: 409,
+      };
     } else {
-      itemsToDelete.Items.forEach(async (item) => {
+      for (const item of itemsToDelete.Items) {
         await docClient
           .delete({
             TableName: tableName,
@@ -72,90 +68,89 @@ exports.delete = async({ username, type, id}) => {
               PK: item.PK,
               SK: item.SK,
             },
-          })
-          .promise();
-			});
-			return {
-				body: `${type} deleted!`,
-				statusCode : 200
-			}
+          }).promise()
+      };
+      return {
+        body: `${serviceType} deleted!`,
+        statusCode: 200,
+      };
     }
   } catch (err) {
-		return {
-			body: `Could not delete ${type}: ${err}`,
-			statusCode : 409
-		}
+    return {
+      body: `Could not delete ${serviceType}: ${err}`,
+      statusCode: 409,
+    };
   }
 };
 
-exports.get = async({username, type, id}) =>{
+exports.get = async ({ username, serviceType, id }) => {
   // Build the query
-  let params = {
+  const params = {
     TableName: tableName,
     KeyConditionExpression: 'PK = :pk AND SK = :sk',
-    FilterExpression: `username = :username`,
+    FilterExpression: `serviceType = :serviceType`,
     ExpressionAttributeValues: {
-      ':pk': type,
+      ':pk': username,
       ':sk': id,
-      ':username': username,
+      ':serviceType': serviceType,
     },
   };
 
   // Try to get the service from the table
   try {
-    let data = await docClient.query(params).promise();
-		return {
+    const data = await docClient.query(params).promise();
+    return {
       body: JSON.stringify(data),
       statusCode: 200,
     };
   } catch (err) {
-		return {
-      body: `Could not get ${type}: ${err}`,
-      statusCode: 409,
-    };
-  }
-}
-
-exports.list = async ({ username, type, parentId }) => {
-  // Build the query
-  let params = {
-    TableName: tableName,
-    KeyConditionExpression: 'PK = :pk AND begins_with ( SK , :sk )',
-    FilterExpression: `username = :username`,
-    ExpressionAttributeValues: {
-      ':pk': type,
-      ':sk': parentId ? parentId : '_',
-      ':username': username,
-    },
-  };
-
-  // Try to get the list from the table
-  try {
-    let data = await docClient.query(params).promise();
-		return {
-      body: JSON.stringify(data),
-      statusCode: 200,
-    };
-  } catch (err) {
-		return {
-      body: `Could not get ${type}: ${err}`,
+    return {
+      body: `Could not get ${serviceType}: ${err}`,
       statusCode: 409,
     };
   }
 };
 
-exports.update = async ({ username, type, id, body }) => {
+exports.list = async ({ username, serviceType, parentId }) => {
+  // Build the query
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: 'PK = :pk AND begins_with ( SK , :sk )',
+    FilterExpression: `serviceType = :serviceType`,
+    ExpressionAttributeValues: {
+      ':pk': username,
+      ':sk': parentId ? parentId : '_',
+      ':serviceType': serviceType,
+    },
+  };
+
+  // Try to get the list from the table
+  try {
+    const data = await docClient.query(params).promise();
+    return {
+      body: JSON.stringify(data),
+      statusCode: 200,
+    };
+  } catch (err) {
+    return {
+      body: `Could not get ${serviceType}: ${err}`,
+      statusCode: 409,
+    };
+  }
+};
+
+exports.update = async ({ username, serviceType, id, body }) => {
   // Build the query to update the service
-  let params = {
+  const params = {
     TableName: tableName,
     Key: {
-      PK: type,
+      PK: username,
       SK: id,
     },
-    ConditionExpression: `username = :username`,
-    FilterExpression: `username = :username`,
+    ConditionExpression: `serviceType = :serviceType`,
+    FilterExpression: `serviceType = :serviceType`,
     ExpressionAttributeValues: {
-      ':username': username,
+      ':serviceType': serviceType,
       ':info': body,
     },
     UpdateExpression: 'set info = :info',
@@ -164,14 +159,14 @@ exports.update = async ({ username, type, id, body }) => {
 
   // Try to get the service from the table
   try {
-		await docClient.update(params).promise();
-		return {
-      body: `${type} updated!`,
+    await docClient.update(params).promise();
+    return {
+      body: `${serviceType} updated!`,
       statusCode: 200,
     };
   } catch (err) {
-		return {
-      body: `Could not update ${type}: ${err}`,
+    return {
+      body: `Could not update ${serviceType}: ${err}`,
       statusCode: 409,
     };
   }
